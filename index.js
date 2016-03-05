@@ -1,23 +1,17 @@
-var cool = require('cool-ascii-faces');
-var express = require('express');
-var app = express();
-
-app.set('port', (process.env.PORT || 5000));
-
-app.use(express.static(__dirname + '/public'));
-
-// views is directory for all template files
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-
-app.get('/', function(request, response) {
-  response.render('pages/index')
-});
-
-app.get('/cool', function(request, response) {
-  response.send(cool());
-});
-
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
+var http = require('http'),
+    fs = require('fs')
+var port = process.env.PORT || 5000
+http.createServer(function(req, res) {
+    var url = './' + (req.url == '/' ? 'index.html' : req.url)
+    fs.readFile(url, function(err, html) {
+        if (err) {
+            var message404 = "There is no such page! <a href='/'>Back to home page</a>"
+            res.writeHead(404, {'Content-Type': 'text/html', 'Content-Length': message404.length})
+            res.write(message404)
+        } else {
+            res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': html.length})
+            res.write(html)
+        }
+        res.end()
+    })
+}).listen(port)
